@@ -105,6 +105,15 @@ class Player {
     }
 
     public static Comparator<? super Entity> comparator(Entity hero) {
-        return Comparator.comparing(e -> e.threatFor, Comparator.reverseOrder());
+        Comparator<Entity> threatComparator = Comparator.comparing(e -> e.threatFor, Comparator.reverseOrder());
+        Comparator<Entity> nearBaseComparator = Comparator.comparing(e -> e.nearBase, Comparator.reverseOrder());
+        Comparator<Entity> nearestComparator = Comparator.comparing(e -> squaredDistanceFromBase(e), Comparator.naturalOrder());
+        return threatComparator.thenComparing(nearBaseComparator).thenComparing(nearestComparator);
+    }
+
+    public static int squaredDistanceFromBase(Entity entity) {
+        int x_dist = entity.x - MY_BASE.x;
+        int y_dist = entity.y - MY_BASE.y;
+        return (x_dist * x_dist) + (y_dist * y_dist);
     }
 }

@@ -45,6 +45,31 @@ public class MonsterTargettingTest {
         assertThat(target.id).isEqualTo(2);
     }
 
+    @Test
+    void prefere_near_base_over_far_away() {
+
+        List<Player.Entity> monsters = List.of(
+                new Player.Entity(1, 0, 10000, 10000, 0, 0, 10, 0, 0, 0, 1),
+                new Player.Entity(2, 0, 10000, 10000, 0, 0, 10, 0, 0, 1, 1));
+
+        Player.Entity target = Player.getTarget(monsters, List.of(hero(999)), 0);
+
+        assertThat(target.id).isEqualTo(2);
+    }
+
+    @Test
+    void prefere_nearest() {
+        Player.MY_BASE = new Player.Entity(123456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        List<Player.Entity> monsters = List.of(
+                new Player.Entity(1, 0, 2000, 2000, 0, 0, 10, 0, 0, 1, 1),
+                new Player.Entity(2, 0, 1500, 1500, 0, 0, 10, 0, 0, 1, 1));
+
+        Player.Entity target = Player.getTarget(monsters, List.of(hero(999)), 0);
+
+        assertThat(target.id).isEqualTo(2);
+    }
+
     private Player.Entity hero(int id) {
         return new Player.Entity(id, 1, 5000, 5000, 0, 0, 10, 0, 0, 0, 0);
     }
