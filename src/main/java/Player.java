@@ -1,13 +1,11 @@
 import java.util.*;
-import java.util.stream.Collectors;
-import java.io.*;
-import java.math.*;
 
 class Player {
 
     static final int TYPE_MONSTER = 0;
     static final int TYPE_MY_HERO = 1;
     static final int TYPE_OP_HERO = 2;
+    static Entity MY_BASE;
 
     static class Entity {
         int id;
@@ -40,8 +38,12 @@ class Player {
         // base_x,base_y: The corner of the map representing your base
         int baseX = in.nextInt();
         int baseY = in.nextInt();
+
+        MY_BASE = new Entity(0, 0, baseX, baseY, 0, 0, 0, 0, 0, 0, 0);
+
         // heroesPerPlayer: Always 3
         int heroesPerPlayer = in.nextInt();
+
 
         // game loop
         while (true) {
@@ -84,18 +86,25 @@ class Player {
             }
 
             for (int i = 0; i < heroesPerPlayer; i++) {
-                Entity target = null;
-
-                if (!monsters.isEmpty()) {
-                    target = monsters.get(i % monsters.size());
-                }
+                Entity target = getTarget(monsters, myHeroes, i);
 
                 if (target != null) {
-                    System.out.println(String.format("MOVE %d %d", target.x , target.y));
+                    System.out.println(String.format("MOVE %d %d", target.x, target.y));
                 } else {
                     System.out.println("WAIT");
                 }
             }
         }
+    }
+
+    public static Entity getTarget(List<Entity> monsters, List<Entity> myHeroes, int i) {
+        return monsters.stream()
+                .filter(e -> e.threatFor != 2)
+                .sorted(comparator(myHeroes.get(i))).findFirst()
+                .orElse(MY_BASE);
+    }
+
+    public static Comparator<? super Entity> comparator(Entity hero) {
+        return Comparator.comparing(e -> e.threatFor, Comparator.reverseOrder());
     }
 }
