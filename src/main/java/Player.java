@@ -108,18 +108,18 @@ class Player {
                 }
             }
 
-            moveToBestTarget(monsters, 0);
-            moveToBestTarget(monsters, 1);
-            pushMonstersToOpponent(monsters, 2);
+            moveToBestTarget(monsters, myHeroes, 0);
+            moveToBestTarget(monsters, myHeroes, 1);
+            pushMonstersToOpponent(monsters, myHeroes, 2);
         }
     }
 
-    private static void pushMonstersToOpponent(List<Entity> monsters, int indexHero) {
-        moveToBestTarget(monsters, indexHero);
+    private static void pushMonstersToOpponent(List<Entity> monsters, List<Entity> heroes, int indexHero) {
+        moveToBestTarget(monsters, heroes, indexHero);
     }
 
-    private static void moveToBestTarget(List<Entity> monsters, int indexHero) {
-        Entity target = getTarget(monsters, indexHero);
+    private static void moveToBestTarget(List<Entity> monsters, List<Entity> heroes, int indexHero) {
+        Entity target = getTarget(monsters, heroes, indexHero);
 
         if (target != null) {
             System.out.println(String.format("MOVE %d %d", target.x + 2 * target.vx, target.y + 2 * target.vy));
@@ -128,23 +128,29 @@ class Player {
         }
     }
 
-    public static Entity getTarget(List<Entity> monsters, int indexHero) {
+    public static Entity getTarget(List<Entity> monsters, List<Entity> heroes, int indexHero) {
         return monsters.stream()
                 .filter(e -> e.threatFor != 2)
-                .sorted(comparator()).findFirst()
+                .sorted(comparator(heroes, indexHero)).findFirst()
                 .orElse(waitingPoints.get(indexHero));
     }
 
-    public static Comparator<? super Entity> comparator() {
+    public static Comparator<? super Entity> comparator(List<Entity> heroes, int indexHero) {
         Comparator<Entity> threatComparator = Comparator.comparing(e -> e.threatFor, Comparator.reverseOrder());
         Comparator<Entity> nearBaseComparator = Comparator.comparing(e -> e.nearBase, Comparator.reverseOrder());
-        Comparator<Entity> nearestComparator = Comparator.comparing(e -> squaredDistanceFromBase(e), Comparator.naturalOrder());
+        Comparator<Entity> nearestComparator = Comparator.comparing(e -> squaredDistanceFromBaseAdjustedByDistance(e, heroes, indexHero), Comparator.naturalOrder());
         return threatComparator.thenComparing(nearBaseComparator).thenComparing(nearestComparator);
     }
 
-    public static int squaredDistanceFromBase(Entity entity) {
-        int x_dist = entity.x - MY_BASE.x;
-        int y_dist = entity.y - MY_BASE.y;
+    public static int squaredDistanceFromBaseAdjustedByDistance(Entity targetEntity, List<Entity> heroes, int indexHero) {
+        int squaredDistanceFromBase = squaredDistance(targetEntity, MY_BASE);
+        int squaredDistanceFromHero = squaredDistance(targetEntity, heroes.get(indexHero));
+        return (int) 1.7 * squaredDistanceFromBase + squaredDistanceFromHero;
+    }
+
+    private static int squaredDistance(Entity entity1, Entity entity2) {
+        int x_dist = entity1.x - entity2.x;
+        int y_dist = entity1.y - entity2.y;
         return (x_dist * x_dist) + (y_dist * y_dist);
     }
 }
