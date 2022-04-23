@@ -1,10 +1,27 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Scanner;
 
 class Player {
+
+    static final List<Entity> waitingPointsPlayer1 = new ArrayList<Entity>();
+    static final List<Entity> waitingPointsPlayer2 = new ArrayList<Entity>();
+
+    static {
+        waitingPointsPlayer1.add(new Player.Entity(123, 0, 5200, 700, 0, 0, 0, 0, 0, 0, 0));
+        waitingPointsPlayer1.add(new Player.Entity(456, 0, 4500, 3200, 0, 0, 0, 0, 0, 0, 0));
+        waitingPointsPlayer1.add(new Player.Entity(789, 0, 2200, 4900, 0, 0, 0, 0, 0, 0, 0));
+
+        waitingPointsPlayer2.add(new Player.Entity(123, 0, 12000, 7600, 0, 0, 0, 0, 0, 0, 0));
+        waitingPointsPlayer2.add(new Player.Entity(456, 0, 13500, 5000, 0, 0, 0, 0, 0, 0, 0));
+        waitingPointsPlayer2.add(new Player.Entity(789, 0, 15500, 3500, 0, 0, 0, 0, 0, 0, 0));
+    }
 
     static final int TYPE_MONSTER = 0;
     static final int TYPE_MY_HERO = 1;
     static final int TYPE_OP_HERO = 2;
+    static List<Entity> waitingPoints;
     static Entity MY_BASE;
 
     static class Entity {
@@ -31,6 +48,7 @@ class Player {
             this.nearBase = nearBase;
             this.threatFor = threatFor;
         }
+
     }
 
     public static void main(String args[]) {
@@ -41,6 +59,11 @@ class Player {
 
         MY_BASE = new Entity(0, 0, baseX, baseY, 0, 0, 0, 0, 0, 0, 0);
 
+        if (baseX == 0) {
+            waitingPoints = waitingPointsPlayer1;
+        } else {
+            waitingPoints = waitingPointsPlayer2;
+        }
         // heroesPerPlayer: Always 3
         int heroesPerPlayer = in.nextInt();
 
@@ -85,18 +108,18 @@ class Player {
                 }
             }
 
-            moveToBestTarget(monsters);
-            moveToBestTarget(monsters);
-            pushMonstersToOpponent(monsters);
+            moveToBestTarget(monsters, 0);
+            moveToBestTarget(monsters, 1);
+            pushMonstersToOpponent(monsters, 2);
         }
     }
 
-    private static void pushMonstersToOpponent(List<Entity> monsters) {
-        moveToBestTarget(monsters);
+    private static void pushMonstersToOpponent(List<Entity> monsters, int indexHero) {
+        moveToBestTarget(monsters, indexHero);
     }
 
-    private static void moveToBestTarget(List<Entity> monsters) {
-        Entity target = getTarget(monsters);
+    private static void moveToBestTarget(List<Entity> monsters, int indexHero) {
+        Entity target = getTarget(monsters, indexHero);
 
         if (target != null) {
             System.out.println(String.format("MOVE %d %d", target.x + 2 * target.vx, target.y + 2 * target.vy));
@@ -105,11 +128,11 @@ class Player {
         }
     }
 
-    public static Entity getTarget(List<Entity> monsters) {
+    public static Entity getTarget(List<Entity> monsters, int indexHero) {
         return monsters.stream()
                 .filter(e -> e.threatFor != 2)
                 .sorted(comparator()).findFirst()
-                .orElse(MY_BASE);
+                .orElse(waitingPoints.get(indexHero));
     }
 
     public static Comparator<? super Entity> comparator() {
