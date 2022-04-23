@@ -1,8 +1,5 @@
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -16,7 +13,7 @@ public class MonsterTargettingTest {
         Player.MY_BASE = new Player.Entity(123456, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         List<Player.Entity> monsters = emptyList();
 
-        Player.Entity target = Player.getTarget(monsters, List.of(hero(999)), 0);
+        Player.Entity target = Player.getTarget(monsters);
 
         assertThat(target.id).isEqualTo(123456);
     }
@@ -28,7 +25,7 @@ public class MonsterTargettingTest {
         List<Player.Entity> monsters = List.of(
                 new Player.Entity(1, 0, 10000, 10000, 0, 0, 10, 0, 0, 0, 2));
 
-        Player.Entity target = Player.getTarget(monsters, List.of(hero(999)), 0);
+        Player.Entity target = Player.getTarget(monsters);
 
         assertThat(target.id).isEqualTo(123456);
     }
@@ -40,7 +37,7 @@ public class MonsterTargettingTest {
                 new Player.Entity(1, 0, 10000, 10000, 0, 0, 10, 0, 0, 0, 0),
                 new Player.Entity(2, 0, 10000, 10000, 0, 0, 10, 0, 0, 0, 1));
 
-        Player.Entity target = Player.getTarget(monsters, List.of(hero(999)), 0);
+        Player.Entity target = Player.getTarget(monsters);
 
         assertThat(target.id).isEqualTo(2);
     }
@@ -52,7 +49,7 @@ public class MonsterTargettingTest {
                 new Player.Entity(1, 0, 10000, 10000, 0, 0, 10, 0, 0, 0, 1),
                 new Player.Entity(2, 0, 10000, 10000, 0, 0, 10, 0, 0, 1, 1));
 
-        Player.Entity target = Player.getTarget(monsters, List.of(hero(999)), 0);
+        Player.Entity target = Player.getTarget(monsters);
 
         assertThat(target.id).isEqualTo(2);
     }
@@ -65,12 +62,9 @@ public class MonsterTargettingTest {
                 new Player.Entity(1, 0, 2000, 2000, 0, 0, 10, 0, 0, 1, 1),
                 new Player.Entity(2, 0, 1500, 1500, 0, 0, 10, 0, 0, 1, 1));
 
-        Player.Entity target = Player.getTarget(monsters, List.of(hero(999)), 0);
+        Player.Entity target = Player.getTarget(monsters);
 
         assertThat(target.id).isEqualTo(2);
     }
 
-    private Player.Entity hero(int id) {
-        return new Player.Entity(id, 1, 5000, 5000, 0, 0, 10, 0, 0, 0, 0);
-    }
 }
